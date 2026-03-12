@@ -1,0 +1,12 @@
+# Ollama LLM Benchmark & Evaluation
+# Use with: pip install -r requirements.txt (inside conda env or venv)
+
+ollama>=0.3.0
+requests>=2.31.0
+pydantic>=2.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+# For MMSI-Bench (load_dataset from HuggingFace)
+datasets>=2.14.0
