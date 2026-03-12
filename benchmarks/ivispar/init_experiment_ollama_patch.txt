@@ -1,0 +1,18 @@
+# Add this branch to iVISPAR's Source/Experiment/init_experiment_components.py
+# inside init_agent(), before the "else: raise ValueError" part.
+#
+# Insert after the GeminiAgent block (or any existing agent_type check):
+
+ elif agent_params.get('agent_type') == 'OllamaAgent':
+     agent = agent_systems.OllamaAgent(
+         episode_path=episode_path,
+         episode_logger=episode_logger,
+         api_key_file_path=agent_params.get('api_keys_file_path', 'Data/API-keys/api-keys.txt'),
+         instruction_prompt_file_path=agent_params.get('instruction_prompt_file_path', None),
+         visual_state_embedding=agent_params.get('visual_state_embedding', 'label'),
+         single_images=agent_params.get('single_images', True),
+         COT=agent_params.get('COT', False),
+         delay=agent_params.get('delay', 0),
+         max_history=agent_params.get('max_history', 0),
+         ollama_model=agent_params.get('ollama_model', 'llava'),
+     )

@@ -1,8 +1,8 @@
 # Results and outputs
 results/
 
-# External benchmark repo (clone separately; set IVISPAR_ROOT)
-iVISPAR/
+# External benchmark repo at repo root (clone separately; set IVISPAR_ROOT)
+/iVISPAR/
 
 # Environment
 .env
