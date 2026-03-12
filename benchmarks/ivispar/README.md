@@ -2,6 +2,19 @@
 
 [iVISPAR](https://github.com/SharkyBamboozle/iVISPAR) is an **Interactive Visual-Spatial Reasoning** benchmark for Vision-Language Models (VLMs). It uses sliding-tile-style puzzles in 3D, 2D, and text modalities. This folder provides an **Ollama agent** and params so you can run iVISPAR with models like **LLaVA** and **Qwen3-VL** locally.
 
+## Quick setup summary
+
+| Step | Action |
+|------|--------|
+| 1 | Clone iVISPAR: `git clone https://github.com/SharkyBamboozle/iVISPAR.git` |
+| 2 | Create env: `conda env create -f Resources/environment.yml` → `conda activate conda_env_iVISPAR` → `pip install ollama` |
+| 3 | Create `Data/API-keys/api-keys.txt` (empty file) |
+| 4 | Add Ollama agent: paste `ollama_agent_snippet.py` into `Source/Experiment/agent_systems.py`; add `OllamaAgent` branch in `init_experiment_components.py` (see `init_experiment_ollama_patch.txt`) |
+| 5 | Set `IVISPAR_ROOT` to your iVISPAR clone path |
+| 6 | Run: `python scripts/run_benchmark.py --benchmark ivispar --model llava` (from this repo, with `conda_env_iVISPAR` active) |
+
+---
+
 ## Recommended models (Ollama)
 
 Use **multimodal** models only:

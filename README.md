@@ -68,7 +68,69 @@ python scripts/run_ollama_chat.py
 
 ### iVISPAR
 
-[iVISPAR](https://github.com/SharkyBamboozle/iVISPAR) is an interactive visual-spatial reasoning benchmark for **Vision-Language Models (VLMs)**. It uses sliding-tile-style puzzles in 3D, 2D, and text modalities. This project targets VLMs and recommends **Qwen (vision)** and **LLaVA** as the primary Ollama models for running iVISPAR. See `benchmarks/ivispar/README.md` for setup and integration details.
+[iVISPAR](https://github.com/SharkyBamboozle/iVISPAR) is an interactive visual-spatial reasoning benchmark for **Vision-Language Models (VLMs)**. It uses sliding-tile-style puzzles in 3D, 2D, and text modalities. Use **LLaVA** or **Qwen3-VL** with Ollama.
+
+#### How to set up iVISPAR
+
+1. **Clone iVISPAR** (this project does not include the iVISPAR repo):
+
+   ```bash
+   git clone https://github.com/SharkyBamboozle/iVISPAR.git
+   cd iVISPAR
+   ```
+
+2. **Create iVISPAR’s conda environment** and install Ollama:
+
+   ```bash
+   conda env create -f Resources/environment.yml
+   conda activate conda_env_iVISPAR
+   pip install ollama
+   ```
+
+3. **Create a dummy API key file** (required by the experiment; Ollama does not use it):
+
+   ```bash
+   mkdir -p Data/API-keys
+   touch Data/API-keys/api-keys.txt
+   ```
+   On Windows: `mkdir Data\API-keys` then create an empty `Data\API-keys\api-keys.txt`.
+
+4. **Add the Ollama agent to iVISPAR** (so experiments can call your local Ollama):
+   - **`iVISPAR/Source/Experiment/agent_systems.py`**: add `import ollama` at the top if missing; paste the full contents of **`benchmarks/ivispar/ollama_agent_snippet.py`** at the end (the `OllamaAgent` class).
+   - **`iVISPAR/Source/Experiment/init_experiment_components.py`**: in `init_agent()`, add the `OllamaAgent` branch **before** the `else: raise ValueError(...)` line, as in **`benchmarks/ivispar/init_experiment_ollama_patch.txt`**.
+
+5. **Set `IVISPAR_ROOT`** to the path of your iVISPAR clone (use your actual path):
+
+   ```bash
+   # Windows (PowerShell or CMD)
+   set IVISPAR_ROOT=C:\path\to\iVISPAR
+
+   # Linux/macOS
+   export IVISPAR_ROOT=/path/to/iVISPAR
+   ```
+
+#### How to run iVISPAR
+
+From this repo, in a terminal where `IVISPAR_ROOT` is set:
+
+```bash
+conda activate conda_env_iVISPAR
+set IVISPAR_ROOT=C:\path\to\iVISPAR
+cd C:\path\to\CogntiveLLMsStudy
+python scripts/run_benchmark.py --benchmark ivispar --model llava
+```
+
+- The iVISPAR web app opens at http://localhost:8000. Wait for the Unity app to fully load (progress bar gone).
+- When the terminal shows **"Please enter the remote client id:"**, copy the client ID from the browser (e.g. "Copy ID" in the app), **paste it in the terminal**, and press Enter.
+- **Keep the browser tab open and in the foreground** until the run finishes. Results go to `iVISPAR/Data/Experiments/`.
+
+Other vision models (e.g. Qwen3-VL):
+
+```bash
+python scripts/run_benchmark.py --benchmark ivispar --model qwen3-vl
+```
+
+For troubleshooting (port 1984, client disconnects, WebGL errors), see **`benchmarks/ivispar/README.md`**.
 
 ### MMSI-Bench
 
