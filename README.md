@@ -111,12 +111,23 @@ python scripts/run_ollama_chat.py
 
 #### How to run iVISPAR
 
-From this repo, in a terminal where `IVISPAR_ROOT` is set:
+**You must use the iVISPAR conda environment** (it has `ollama` and iVISPAR deps) **and set `IVISPAR_ROOT`** before running.
 
-```bash
+**PowerShell** (use this syntax — `set` does not work in PowerShell):
+
+```powershell
 conda activate conda_env_iVISPAR
-set IVISPAR_ROOT=C:\path\to\iVISPAR
-cd C:\path\to\CogntiveLLMsStudy
+$env:IVISPAR_ROOT = "C:\Users\Administrator\Desktop\CogntiveLLMsStudy\iVISPAR"
+cd C:\Users\Administrator\Desktop\CogntiveLLMsStudy
+python scripts/run_benchmark.py --benchmark ivispar --model llava
+```
+
+**CMD** (Command Prompt):
+
+```cmd
+conda activate conda_env_iVISPAR
+set IVISPAR_ROOT=C:\Users\Administrator\Desktop\CogntiveLLMsStudy\iVISPAR
+cd C:\Users\Administrator\Desktop\CogntiveLLMsStudy
 python scripts/run_benchmark.py --benchmark ivispar --model llava
 ```
 
@@ -129,6 +140,8 @@ Other vision models (e.g. Qwen3-VL):
 ```bash
 python scripts/run_benchmark.py --benchmark ivispar --model qwen3-vl
 ```
+
+**If the command fails:** `No module named 'ollama'` means you are not in `conda_env_iVISPAR` — run `conda activate conda_env_iVISPAR` first. "IVISPAR_ROOT to be set" means set the env var as in the second line above (adjust the path if iVISPAR is elsewhere).
 
 For troubleshooting (port 1984, client disconnects, WebGL errors), see **`benchmarks/ivispar/README.md`**.
 

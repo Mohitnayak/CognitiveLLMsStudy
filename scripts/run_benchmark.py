@@ -136,7 +136,9 @@ def main() -> None:
             print("iVISPAR benchmark requires the iVISPAR repo and IVISPAR_ROOT to be set.")
             print("1. Clone: git clone https://github.com/SharkyBamboozle/iVISPAR.git")
             print("2. Add OllamaAgent to iVISPAR (see benchmarks/ivispar/README.md)")
-            print("3. Set IVISPAR_ROOT to the clone path, e.g.: set IVISPAR_ROOT=C:\\path\\to\\iVISPAR")
+            print("3. Set IVISPAR_ROOT to the clone path.")
+            print("   PowerShell: $env:IVISPAR_ROOT = \"C:\\path\\to\\iVISPAR\"")
+            print("   CMD:        set IVISPAR_ROOT=C:\\path\\to\\iVISPAR")
             print("4. Run again: python scripts/run_benchmark.py --benchmark ivispar --model llava")
             return
         run_ivispar_experiment(Path(ivispar_root), args.model)
