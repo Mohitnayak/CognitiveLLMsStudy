@@ -25,6 +25,8 @@ Results and metrics are written under `results/`:
 - `mmsi_bench_<model>_results.json` / `.csv` — per-sample answers and correctness
 - `mmsi_bench_<model>_metrics.json` — total count, correct count, accuracy (exact_match)
 
+Native per-example rows are also written to **`results/native/`** (one JSONL file per run, e.g. `mmsi_<model>_<system>_run<id>.jsonl`). Use `--system` and `--run-id` to label runs. Then run `python scripts/run_cognitive_report.py` to generate accuracy summaries and cognitive metrics in `results/reports/`.
+
 ## Options
 
 | Option | Description |
@@ -33,6 +35,8 @@ Results and metrics are written under `results/`:
 | `--model`, `-m` | Ollama model name (e.g. `llava`, `qwen2.5-vl`). |
 | `--limit`, `-n` | Run only the first N samples (e.g. `--limit 10`). |
 | `--output-name`, `-o` | Base name for result files (default: `mmsi_bench_<model>`). |
+| `--system` | System label for native output (default: `baseline`). |
+| `--run-id` | Run index for native output (default: `1`). |
 
 ## How it works
 

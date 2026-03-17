@@ -6,10 +6,14 @@ other benchmarks.
 
 from __future__ import annotations
 
+import json
+import os
 import re
 import tempfile
 import time
 from pathlib import Path
+
+import pandas as pd
 
 # MMSI-Bench post-prompt and extraction (aligned with official repo)
 MMSI_POST_PROMPT = (
@@ -53,6 +57,27 @@ def extract_single_choice_with_word_boundary(pred: str, gt: str) -> float:
     return 1.0 if pred_letter == answer else 0.0
 
 
+def _extract_pred_letter_mmsi(pred: str) -> str:
+    """Extract single-choice letter (A–D) from model prediction; returns "" if none found."""
+    if not pred:
+        return ""
+    pattern_1 = r"``([^`]*)``"
+    match = re.search(pattern_1, pred)
+    if match:
+        pred = match.group(1).strip()
+    else:
+        match = re.search(r"`([^`]*)`", pred)
+        if match:
+            pred = match.group(1).strip()
+    match = re.search(r"\{([^}]*)\}", pred)
+    if match:
+        pred = match.group(1).strip()
+    match = re.search(r"\b[A-D]\b(?!\s[a-zA-Z])", pred, re.IGNORECASE)
+    if not match:
+        return ""
+    return match.group().upper()
+
+
 def run_mmsi_bench(
     model: str,
     *,
@@ -89,6 +114,16 @@ def run_mmsi_bench(
     results_dir = Path(results_dir)
     results_dir.mkdir(parents=True, exist_ok=True)
 
+    # Native output directory for per-example rows
+    native_dir = repo_root / "results" / "native"
+    native_dir.mkdir(parents=True, exist_ok=True)
+    system_name = os.environ.get("COG_SYSTEM", "baseline")
+    run_id = int(os.environ.get("COG_RUN_ID", "1"))
+    native_path = (
+        native_dir
+        / f"mmsi_{model.replace('/', '_')}_{system_name}_run{run_id}.jsonl"
+    )
+
     try:
         dataset = load_dataset("RunsenXu/MMSI-Bench", split=split, trust_remote_code=True)
     except Exception:
@@ -108,7 +143,9 @@ def run_mmsi_bench(
     log_interval = 50 if total > 100 else (10 if total > 20 else 1)
     print(f"[MMSI-Bench] Starting evaluation: {total} samples (model={model})")
 
-    with tempfile.TemporaryDirectory(prefix="mmsi_bench_images_") as tmpdir:
+    with tempfile.TemporaryDirectory(prefix="mmsi_bench_images_") as tmpdir, native_path.open(
+        "w", encoding="utf-8"
+    ) as native_file:
         tmpdir_path = Path(tmpdir)
         for idx in range(len(dataset)):
             row = dataset[idx]
@@ -137,6 +174,7 @@ def run_mmsi_bench(
             if image_paths:
                 msg["images"] = image_paths
 
+            t0 = time.perf_counter()
             try:
                 resp = chat(model=model, messages=[msg])
                 response_text = (
@@ -147,19 +185,37 @@ def run_mmsi_bench(
             except Exception as e:
                 response_text = ""
                 print(f"  [MMSI-Bench] Sample {sample_id} error: {e}")
+            latency_s = time.perf_counter() - t0
 
             score = extract_single_choice_with_word_boundary(response_text, answer)
             if score > 0:
                 correct += 1
 
-            results.append({
+            pred_letter = _extract_pred_letter_mmsi(response_text)
+            row_result = {
                 "id": sample_id,
                 "question_type": question_type,
                 "answer": answer,
                 "response": response_text,
                 "correct": bool(score),
                 "model": model,
-            })
+            }
+            results.append(row_result)
+
+            native_row = {
+                "benchmark": "mmsi",
+                "item_id": sample_id,
+                "base_model": model,
+                "system": system_name,
+                "run_id": run_id,
+                "pred_raw": response_text,
+                "pred_final": pred_letter or "",
+                "gold": answer,
+                "correct": int(bool(score)),
+                "latency_s": latency_s,
+                "question_type": question_type,
+            }
+            native_file.write(json.dumps(native_row, ensure_ascii=False) + "\n")
 
             # Progress log every N samples or on last sample
             n_done = idx + 1
@@ -182,11 +238,9 @@ def run_mmsi_bench(
 
     # Save results
     out_name = output_name or f"mmsi_bench_{model.replace('/', '_')}"
-    import json
     results_path = results_dir / f"{out_name}_results.json"
     with open(results_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
-    import pandas as pd
     pd.DataFrame(results).to_csv(
         results_dir / f"{out_name}_results.csv", index=False, encoding="utf-8"
     )

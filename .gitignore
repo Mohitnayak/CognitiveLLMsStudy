@@ -1,6 +1,9 @@
 # Results and outputs
 results/
 
+# Downloaded benchmark data (e.g. scripts/download_visulogic.py)
+data/
+
 # External benchmark repo at repo root (clone separately; set IVISPAR_ROOT)
 /iVISPAR/
 

@@ -1,6 +1,6 @@
 # Ollama LLM Benchmark & Evaluation
 
-A Python project for setting up LLMs through [Ollama](https://ollama.com) and evaluating them on benchmarks, including **iVISPAR** (Interactive Visual-Spatial Reasoning) and **MMSI-Bench** (Multi-Image Spatial Intelligence), with evaluation tooling.
+A Python project for setting up LLMs through [Ollama](https://ollama.com) and evaluating them on benchmarks, including **iVISPAR** (Interactive Visual-Spatial Reasoning), **MMSI-Bench** (Multi-Image Spatial Intelligence), and **MMMU-Pro** (Multi-discipline Multimodal Understanding), with evaluation tooling.
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ A Python project for setting up LLMs through [Ollama](https://ollama.com) and ev
 |------|-------------|
 | `src/` | Core modules: Ollama client wrapper and evaluation helpers |
 | `scripts/` | Entrypoints: run chat, run benchmarks |
-| `benchmarks/` | Benchmark integrations (e.g. iVISPAR, MMSI-Bench) |
+| `benchmarks/` | Benchmark integrations (e.g. iVISPAR, MMSI-Bench, MMMU-Pro, VisuLogic) |
 | `results/` | Output for logs and metrics (gitignored) |
 
 ## Usage
@@ -57,12 +57,36 @@ Do **not** use text-only models (e.g. `llama3.2`) for image-based tasks.
 - **MMSI-Bench** (multi-image spatial intelligence):  
   `python scripts/run_benchmark.py --benchmark mmsi_bench --model llava`  
   Optional: `--limit 5` for a quick test. See `benchmarks/mmsi_bench/README.md`.
+- **MMMU-Pro** (multi-discipline multimodal understanding):  
+  `python scripts/run_benchmark.py --benchmark mmmupu_pro --model llava`  
+  Use `--config "standard (10 options)"` (default), `"standard (4 options)"`, or `vision`. Optional: `--limit 5`. See `benchmarks/mmmupu_pro/README.md`.
+ - **VisuLogic** (visual reasoning, 1 image + 4-way multiple choice):  
+  `python scripts/run_benchmark.py --benchmark visulogic --model llava`  
+  Requires `VISULOGIC_DATA_ROOT` pointing to a folder with `data.jsonl` and `images/` from the official dataset. See `benchmarks/visulogic/README.md`.
 
 Example chat with a model:
 
 ```bash
 python scripts/run_ollama_chat.py
 ```
+
+### Native evaluation outputs and cognitive report
+
+Benchmark runs (MMSI-Bench, MMMU-Pro, VisuLogic) write **native per-example rows** to a single place: **`results/native/`**. One JSONL file is created per run, e.g.:
+
+- `results/native/mmsi_<model>_<system>_run<id>.jsonl`
+- `results/native/mmmu_pro_<config>_<model>_<system>_run<id>.jsonl`
+- `results/native/visulogic_<model>_<system>_run<id>.jsonl`
+
+Each line is one example with: `benchmark`, `item_id`, `base_model`, `system`, `run_id`, `pred_raw`, `pred_final`, `gold`, `correct`, `latency_s`, plus benchmark-specific fields (`subject`/`config` for MMMU-Pro, `tag` for VisuLogic, `question_type` for MMSI-Bench). Use `--system` and `--run-id` when running benchmarks to label runs (e.g. baseline vs cognitive layer, or multiple runs for consistency).
+
+A **separate script** reads these native outputs and produces JSON summaries and cognitive metrics (no benchmark execution):
+
+```bash
+python scripts/run_cognitive_report.py
+```
+
+Optional: `--native-dir results/native` (default) and `--out-dir results/reports`. This writes `results/reports/native_summary.json` (overall and per-subcategory accuracy) and `results/reports/cognitive_metrics.json`. The latter includes system deltas (LLM+Cog vs baseline), and when the native rows contain the right fields: calibration (Brier, ECE), abstention metrics, consistency across runs, and benchmark-specific metrics (e.g. MMMU-Pro vision-dependence gain, VisuLogic wrong rate by tag, MMSI delta by question type). See `src/cognitive_metrics.py` and `src/native_logging.py` for the schema and available metrics.
 
 ## Benchmarks
 
@@ -148,6 +172,14 @@ For troubleshooting (port 1984, client disconnects, WebGL errors), see **`benchm
 ### MMSI-Bench
 
 [MMSI-Bench](https://github.com/InternRobotics/MMSI-Bench) (ICLR 2026) is a multi-image spatial intelligence VQA benchmark: 1,000 multiple-choice questions, each with multiple images. The integration loads the dataset from Hugging Face and runs your Ollama vision model; results are saved under `results/`. It is fully separate from iVISPAR and does not modify any existing benchmark code. See `benchmarks/mmsi_bench/README.md` for usage.
+
+### MMMU-Pro
+
+[MMMU-Pro](https://arxiv.org/abs/2409.02813) is a more robust multi-discipline multimodal understanding benchmark (vision-only setting and up to 10 options). The integration loads [MMMU/MMMU_Pro](https://huggingface.co/datasets/MMMU/MMMU_Pro) from Hugging Face and runs your Ollama vision model; results are saved under `results/`. Configs: `standard (4 options)`, `standard (10 options)`, or `vision`. See `benchmarks/mmmupu_pro/README.md` for usage.
+
+### VisuLogic
+
+[VisuLogic](https://visulogic-benchmark.github.io/VisuLogic) is a visual reasoning benchmark with 1,000 multiple-choice (A/B/C/D) questions, each paired with an image. The integration reads the official `data.jsonl` and `images/` from a local folder (downloaded from [VisuLogic/VisuLogic](https://huggingface.co/datasets/VisuLogic/VisuLogic)) and runs your Ollama vision model; results are saved under `results/`. See `benchmarks/visulogic/README.md` for dataset setup and usage.
 
 ## License
 

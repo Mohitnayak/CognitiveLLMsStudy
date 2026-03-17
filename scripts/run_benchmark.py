@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Entrypoint to run benchmarks (demo, iVISPAR, MMSI-Bench) via Ollama and record evaluation results.
+Entrypoint to run benchmarks (demo, iVISPAR, MMSI-Bench, MMMU-Pro) via Ollama and record evaluation results.
 Uses src.ollama_client and src.evaluation; for iVISPAR launches the full experiment if IVISPAR_ROOT is set;
 for MMSI-Bench loads the dataset from Hugging Face and runs locally (no clone required).
 """
@@ -82,7 +82,7 @@ def main() -> None:
         "--benchmark",
         "-b",
         default="demo",
-        choices=["demo", "ivispar", "mmsi_bench"],
+        choices=["demo", "ivispar", "mmsi_bench", "mmmupu_pro", "visulogic"],
         help="Benchmark to run (demo = small prompt set for testing)",
     )
     parser.add_argument(
@@ -96,7 +96,24 @@ def main() -> None:
         "-n",
         type=int,
         default=None,
-        help="For mmsi_bench only: run first N samples (default: full dataset)",
+        help="For mmsi_bench / mmmupu_pro: run first N samples (default: full dataset)",
+    )
+    parser.add_argument(
+        "--config",
+        default="standard (10 options)",
+        choices=["standard (4 options)", "standard (10 options)", "vision"],
+        help="For mmmupu_pro only: dataset config (standard 4/10 options or vision)",
+    )
+    parser.add_argument(
+        "--system",
+        default="baseline",
+        help="System label for native output (e.g. baseline, cog). Stored in results/native/ and used by run_cognitive_report.py",
+    )
+    parser.add_argument(
+        "--run-id",
+        type=int,
+        default=1,
+        help="Run index for native output (default: 1). Used for consistency metrics across runs.",
     )
     parser.add_argument(
         "--list-models",
@@ -104,6 +121,10 @@ def main() -> None:
         help="List available Ollama models and exit",
     )
     args = parser.parse_args()
+
+    # Pass system and run_id to runners via env (they write to results/native/)
+    os.environ["COG_SYSTEM"] = args.system
+    os.environ["COG_RUN_ID"] = str(args.run_id)
 
     if args.list_models:
         models = list_models()
@@ -151,6 +172,54 @@ def main() -> None:
         print(f"Running MMSI-Bench with model '{args.model}'{limit_str}...")
         results, metrics = run_mmsi_bench(
             args.model,
+            limit=args.limit,
+            results_dir=RESULTS_DIR,
+            output_name=out_name,
+        )
+        print(f"Results saved to {RESULTS_DIR / (out_name + '_results.json')}")
+        print(f"Accuracy: {metrics['exact_match']:.2%} ({metrics['correct']}/{metrics['total']})")
+        return
+
+    if args.benchmark == "mmmupu_pro":
+        from benchmarks.mmmupu_pro.runner import run_mmmupu_pro
+        cfg_slug = args.config.replace(" ", "_").replace("(", "").replace(")", "")
+        out_name = args.output_name or f"mmmupu_pro_{cfg_slug}_{args.model.replace('/', '_')}"
+        limit_str = f" (first {args.limit} samples)" if args.limit else ""
+        print(f"Running MMMU-Pro (config={args.config}) with model '{args.model}'{limit_str}...")
+        results, metrics = run_mmmupu_pro(
+            args.model,
+            config=args.config,
+            limit=args.limit,
+            results_dir=RESULTS_DIR,
+            output_name=out_name,
+        )
+        print(f"Results saved to {RESULTS_DIR / (out_name + '_results.json')}")
+        print(f"Accuracy: {metrics['exact_match']:.2%} ({metrics['correct']}/{metrics['total']})")
+        return
+
+    if args.benchmark == "visulogic":
+        from benchmarks.visulogic.runner import run_visulogic
+
+        data_root_env = os.environ.get("VISULOGIC_DATA_ROOT")
+        if not data_root_env:
+            print("VisuLogic benchmark requires VISULOGIC_DATA_ROOT to be set.")
+            print("1. Download data.jsonl and images.zip from:")
+            print("   https://huggingface.co/datasets/VisuLogic/VisuLogic")
+            print("2. Unzip so one folder contains data.jsonl and images/ (e.g. images/00000.png, ...).")
+            print("3. Set VISULOGIC_DATA_ROOT to that folder (use your real path), e.g.:")
+            print('   PowerShell: $env:VISULOGIC_DATA_ROOT = "C:\\Users\\YourName\\data\\VisuLogic"')
+            print("   CMD:        set VISULOGIC_DATA_ROOT=C:\\Users\\YourName\\data\\VisuLogic")
+            return
+
+        data_root_path = Path(data_root_env)
+        if "path" in data_root_env.lower() and "to" in data_root_env.lower():
+            print("Warning: VISULOGIC_DATA_ROOT looks like the example path. Set it to the real folder where you placed data.jsonl and images/.")
+        out_name = args.output_name or f"visulogic_{args.model.replace('/', '_')}"
+        limit_str = f" (first {args.limit} samples)" if args.limit else ""
+        print(f"Running VisuLogic with model '{args.model}'{limit_str}...")
+        results, metrics = run_visulogic(
+            args.model,
+            data_root=data_root_path,
             limit=args.limit,
             results_dir=RESULTS_DIR,
             output_name=out_name,
