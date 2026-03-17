@@ -206,9 +206,10 @@ def run_mmmupu_pro(
     system_name = os.environ.get("COG_SYSTEM", "baseline")
     run_id = int(os.environ.get("COG_RUN_ID", "1"))
     config_slug = config.replace(" ", "_").replace("(", "").replace(")", "")
+    model_safe = model.replace("/", "_").replace(":", "_")
     native_path = (
         native_dir
-        / f"mmmu_pro_{config_slug}_{model.replace('/', '_')}_{system_name}_run{run_id}.jsonl"
+        / f"mmmu_pro_{config_slug}_{model_safe}_{system_name}_run{run_id}.jsonl"
     )
     native_file = native_path.open("w", encoding="utf-8")
 

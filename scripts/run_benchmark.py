@@ -25,6 +25,11 @@ from src.evaluation import (
 from src.ollama_client import list_models
 
 
+def _model_to_safe_name(model: str) -> str:
+    """Make model name safe for filenames (e.g. 'qwen3-vl:latest' -> 'qwen3-vl_latest')."""
+    return model.replace("/", "_").replace(":", "_")
+
+
 def run_ivispar_experiment(ivispar_root: Path, model: str) -> None:
     """Run iVISPAR experiment via their run_experiment (requires OllamaAgent added to iVISPAR)."""
     source_dir = ivispar_root / "Source" / "Experiment"
@@ -167,7 +172,7 @@ def main() -> None:
 
     if args.benchmark == "mmsi_bench":
         from benchmarks.mmsi_bench.runner import run_mmsi_bench
-        out_name = args.output_name or f"mmsi_bench_{args.model.replace('/', '_')}"
+        out_name = args.output_name or f"mmsi_bench_{_model_to_safe_name(args.model)}"
         limit_str = f" (first {args.limit} samples)" if args.limit else ""
         print(f"Running MMSI-Bench with model '{args.model}'{limit_str}...")
         results, metrics = run_mmsi_bench(
@@ -183,7 +188,7 @@ def main() -> None:
     if args.benchmark == "mmmupu_pro":
         from benchmarks.mmmupu_pro.runner import run_mmmupu_pro
         cfg_slug = args.config.replace(" ", "_").replace("(", "").replace(")", "")
-        out_name = args.output_name or f"mmmupu_pro_{cfg_slug}_{args.model.replace('/', '_')}"
+        out_name = args.output_name or f"mmmupu_pro_{cfg_slug}_{_model_to_safe_name(args.model)}"
         limit_str = f" (first {args.limit} samples)" if args.limit else ""
         print(f"Running MMMU-Pro (config={args.config}) with model '{args.model}'{limit_str}...")
         results, metrics = run_mmmupu_pro(
@@ -214,7 +219,7 @@ def main() -> None:
         data_root_path = Path(data_root_env)
         if "path" in data_root_env.lower() and "to" in data_root_env.lower():
             print("Warning: VISULOGIC_DATA_ROOT looks like the example path. Set it to the real folder where you placed data.jsonl and images/.")
-        out_name = args.output_name or f"visulogic_{args.model.replace('/', '_')}"
+        out_name = args.output_name or f"visulogic_{_model_to_safe_name(args.model)}"
         limit_str = f" (first {args.limit} samples)" if args.limit else ""
         print(f"Running VisuLogic with model '{args.model}'{limit_str}...")
         results, metrics = run_visulogic(

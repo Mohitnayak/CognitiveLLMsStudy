@@ -151,9 +151,10 @@ def run_visulogic(
     native_dir.mkdir(parents=True, exist_ok=True)
     system_name = os.environ.get("COG_SYSTEM", "baseline")
     run_id = int(os.environ.get("COG_RUN_ID", "1"))
+    model_safe = model.replace("/", "_").replace(":", "_")
     native_path = (
         native_dir
-        / f"visulogic_{model.replace('/', '_')}_{system_name}_run{run_id}.jsonl"
+        / f"visulogic_{model_safe}_{system_name}_run{run_id}.jsonl"
     )
 
     results: list[dict] = []

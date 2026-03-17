@@ -119,9 +119,10 @@ def run_mmsi_bench(
     native_dir.mkdir(parents=True, exist_ok=True)
     system_name = os.environ.get("COG_SYSTEM", "baseline")
     run_id = int(os.environ.get("COG_RUN_ID", "1"))
+    model_safe = model.replace("/", "_").replace(":", "_")
     native_path = (
         native_dir
-        / f"mmsi_{model.replace('/', '_')}_{system_name}_run{run_id}.jsonl"
+        / f"mmsi_{model_safe}_{system_name}_run{run_id}.jsonl"
     )
 
     try:
@@ -237,7 +238,7 @@ def run_mmsi_bench(
     }
 
     # Save results
-    out_name = output_name or f"mmsi_bench_{model.replace('/', '_')}"
+    out_name = output_name or f"mmsi_bench_{model_safe}"
     results_path = results_dir / f"{out_name}_results.json"
     with open(results_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
