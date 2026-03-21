@@ -10,7 +10,7 @@ Interactive **visual–spatial reasoning** experiments that connect **[iVISPAR](
 - **This repo** is a **monorepo**:
   - **`agent/`** — Top-level Python package: `OllamaAgent`, **`CognitiveAgent`** (multi-candidate + reranking / DQN), `OnlineRLAgent`, parsing and board utilities.
   - **`iVISPAR/`** — Patched experiment stack (`Source/Experiment`, `Data/Params`, `Data/Configs`, Unity project under `Source/iVISPAR`, WebGL build under `iVISPAR/iVISPAR/`).
-- **Git hygiene:** `iVISPAR/Data/Experiments/` (run outputs) and `iVISPAR/Data/API-keys/` are **gitignored** so the repo stays small. Create `Data/API-keys/api-keys.txt` locally when using API-based agents.
+- **Git hygiene:** `iVISPAR/Data/Experiments/` (run outputs) and `iVISPAR/Data/API-keys/` are **gitignored** so the repo stays small. **Puzzle datasets** live under `iVISPAR/Data/Configs/<config_id>/` and are tracked. Create `Data/API-keys/api-keys.txt` locally when using API-based agents.
 
 ---
 
