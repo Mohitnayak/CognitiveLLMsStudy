@@ -1,0 +1,50 @@
+{
+  "experiment_id": null,
+  "agents": {
+    "OnlineRL": {
+      "agent_type": "OnlineRLAgent",
+      "delay": 0.1,
+      "rl_max_objects": 16,
+      "rl_grid_size": 4,
+      "rl_hidden_dims": [256, 256],
+      "rl_lr": 0.001,
+      "rl_gamma": 0.99,
+      "rl_buffer_size": 50000,
+      "rl_batch_size": 128,
+      "rl_train_every": 4,
+      "rl_learning_starts": 256,
+      "rl_target_update_every": 500,
+      "rl_epsilon_start": 1.0,
+      "rl_epsilon_end": 0.05,
+      "rl_epsilon_decay_steps": 20000,
+      "rl_step_penalty": -0.02,
+      "rl_shaping_scale": 0.5,
+      "rl_illegal_penalty": -0.5,
+      "rl_win_bonus": 10.0,
+      "rl_device": null,
+      "rl_checkpoint_path": null
+    }
+  },
+  "games": {
+    "InteractivePuzzle1": {
+      "game_type": "InteractivePuzzle",
+      "config_id": "ICML",
+      "num_game_env": 10,
+      "max_game_length": 20,
+      "representation_type": "text",
+      "planning_steps": 1,
+      "instruction_prompt_file_path": "Data/Instructions/instruction_prompt_SGP_Interactive_vision_based.txt",
+      "chain_of_thoughts": false,
+      "predict_board_state": false
+    }
+  },
+  "envs": {
+    "sim_param1": {
+      "grid_label": "both",
+      "camera_offset": [0, 5.57, -3.68],
+      "camera_auto_override": [6.8, -1, 6.8],
+      "screenshot_alpha": 0.0,
+      "auto_done_check": true
+    }
+  }
+}

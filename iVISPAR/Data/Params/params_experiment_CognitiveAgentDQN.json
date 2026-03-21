@@ -1,0 +1,67 @@
+{
+  "experiment_id": null,
+  "agents": {
+    "Cognitive": {
+      "agent_type": "CognitiveAgent",
+      "model_type": "llama3.1:8b",
+      "ollama_base_url": "http://localhost:11434",
+      "instruction_prompt_file_path": "Data/Instructions/ICML_instruction.txt",
+      "visual_state_embedding": "both",
+      "single_images": true,
+      "COT": false,
+      "delay": 0.2,
+      "max_history": 2,
+      "temperature": 0.5,
+      "top_p": 0.9,
+      "num_predict": 800,
+      "timeout": 600,
+      "n_candidates": 3,
+      "rerank_mode": "dqn",
+      "critique_temperature": 0.2,
+      "critique_num_predict": 64,
+      "proposal_temperature": 0.25,
+      "proposal_num_predict": 320,
+      "rl_selector_max_objects": 16,
+      "rl_selector_grid_size": 4,
+      "rl_selector_hidden_dims": [256, 256],
+      "rl_selector_lr": 0.001,
+      "rl_selector_gamma": 0.99,
+      "rl_selector_buffer_size": 50000,
+      "rl_selector_batch_size": 128,
+      "rl_selector_train_every": 4,
+      "rl_selector_learning_starts": 256,
+      "rl_selector_target_update_every": 500,
+      "rl_selector_epsilon_start": 1.0,
+      "rl_selector_epsilon_end": 0.05,
+      "rl_selector_epsilon_decay_steps": 20000,
+      "rl_step_penalty": -0.02,
+      "rl_shaping_scale": 0.5,
+      "rl_illegal_penalty": -0.5,
+      "rl_win_bonus": 10.0,
+      "rl_selector_device": null,
+      "rl_selector_checkpoint_path": null
+    }
+  },
+  "games": {
+    "InteractivePuzzle1": {
+      "game_type": "InteractivePuzzle",
+      "config_id": "SGP_ID_20241212_024852",
+      "num_game_env": 10,
+      "max_game_length": 50,
+      "representation_type": "text",
+      "planning_steps": 1,
+      "instruction_prompt_file_path": "Data/Instructions/instruction_prompt_SGP_Interactive_vision_based.txt",
+      "chain_of_thoughts": false,
+      "predict_board_state": false
+    }
+  },
+  "envs": {
+    "sim_param1": {
+      "grid_label": "both",
+      "camera_offset": [0, 5.57, -3.68],
+      "camera_auto_override": [6.8, -1, 6.8],
+      "screenshot_alpha": 0.0,
+      "auto_done_check": true
+    }
+  }
+}

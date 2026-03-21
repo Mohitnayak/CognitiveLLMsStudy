@@ -1,0 +1,3 @@
+# Optional: only needed for OnlineRLAgent / CognitiveModel DQN training.
+# Install: pip install -r requirements-rl.txt
+torch>=2.0.0

@@ -1,0 +1,6 @@
+# Config files and experiment data
+.DS_Store
+.idea
+data/*
+!/data/Instructions
+!/data/Params

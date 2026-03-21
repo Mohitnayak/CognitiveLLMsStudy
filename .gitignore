@@ -1,0 +1,26 @@
+# --- iVISPAR: keep source & params; omit runs and secrets ---
+iVISPAR/Data/Experiments/
+iVISPAR/Data/API-keys/
+
+# Python (anywhere)
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.env.local
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store
+
+# Optional: upstream backup (do not commit)
+iVISPAR/.git_backup_ivispar_upstream/

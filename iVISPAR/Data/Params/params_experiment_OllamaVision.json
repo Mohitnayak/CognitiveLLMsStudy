@@ -1,0 +1,51 @@
+{
+  "experiment_id": null,
+  "agents": {
+    "OllamaVision": {
+      "agent_type": "OllamaAgent",
+      "model_type": "qwen3:8b",
+      "ollama_base_url": "http://localhost:11434",
+      "instruction_prompt_file_path": "Data/Instructions/ICML_instruction.txt",
+      "visual_state_embedding": "both",
+      "single_images": true,
+      "COT": false,
+      "delay": 0.2,
+      "max_history": 2,
+      "temperature": 0.5,
+      "top_p": 0.9,
+      "num_predict": 500,
+      "timeout": 600
+    }
+  },
+  "games": {
+    "InteractivePuzzle1": {
+      "game_type": "InteractivePuzzle",
+      "config_id": "ICML",
+      "num_game_env": 3,
+      "max_game_length": 20,
+      "representation_type": "text",
+      "planning_steps": 1,
+      "instruction_prompt_file_path": "Data/Instructions/instruction_prompt_SGP_Interactive_vision_based.txt",
+      "chain_of_thoughts": true,
+      "predict_board_state": false
+    }
+  },
+  "envs": {
+    "sim_param1": {
+      "grid_label": "both",
+      "camera_offset": [
+        0,
+        5.57,
+        -3.68
+      ],
+      "camera_auto_override": [
+        6.8,
+        -1,
+        6.8
+      ],
+      "screenshot_alpha": 0.0,
+      "auto_done_check": true
+    }
+  }
+}
+
